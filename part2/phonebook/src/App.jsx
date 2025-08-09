@@ -29,7 +29,7 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [errorMessage, setErrorMessage] = useState(null)
   const [addedMessage, setAddedMessage] = useState(null)
-  const [updatedMessage, setUpdatedMessge] = useState(null)
+  const [updatedMessage, setUpdatedMessage] = useState(null)
 
   const handleNameChange = (event) => {
     console.log(event.target.value)
@@ -50,66 +50,55 @@ const App = () => {
   }
 
   const addPerson = (event) => {
-    event.preventDefault()
-    const newPerson = { name: newName, number: number }
-    const existingPerson = persons.find(person => person.name.toLowerCase() === newName.toLocaleLowerCase())
+  event.preventDefault();
 
-    if (existingPerson && existingPerson.number === number) {
-      alert(`${newName} is already added to phonebook`)
-    } else if (existingPerson && existingPerson.number !== number) {
+  const newPerson = { name: newName, number: number };
+  const existingPerson = persons.find(
+    person => person.name.toLowerCase() === newName.toLowerCase()
+  );
+
+  if (existingPerson) {
+    if (existingPerson.number === number) {
+      alert(`${newName} is already added to the phonebook with the same number`);
+    } else {
       const confirmUpdate = window.confirm(
-        `${newName} is already present in the database, would you like to update the number ?`
-      )
+        `${newName} is already in the phonebook, replace the old number with the new one?`
+      );
+
       if (confirmUpdate) {
-        const updatedPerson = { ...existingPerson, number: number }
+        const updatedPerson = { ...existingPerson, number: number };
+
         noteServices.update(existingPerson.id, updatedPerson)
-          .then(response => {
-            setPersons(persons.map(p => p.id !== existingPerson.id ? p : response))
-            setUpdatedMessge(`${newPerson.name} is updated to the server`)
-            setTimeout(() => {
-              setUpdatedMessge(null)
-            }, 5000)
-            setNewName("")
-            setNumber("")
+          .then(returnedPerson => {
+            setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson));
+            setUpdatedMessage(`${updatedPerson.name} was updated`);
+            setTimeout(() => setUpdatedMessage(null), 5000);
+            setNewName("");
+            setNumber("");
           })
-          .catch(error => console.log("fail")
-          )
+          .catch(error => {
+            setErrorMessage(`Information of ${existingPerson.name} has already been removed from the server`);
+            setTimeout(() => setErrorMessage(null), 5000);
+            setPersons(persons.filter(p => p.id !== existingPerson.id));
+          });
       }
     }
-    else if (persons.some(person => person.name === newName && person.number === number)) {
-      alert(`${newName} is already added to phonebook`)
-    } else if (persons.some(person => person.name === newName && person.number !== number)) {
-      noteServices.update(id, newPerson).then(response => {
-        setPersons(persons.concat(response))
-        setUpdatedMessge(`${newPerson.name} is added to the server`)
-        setTimeout(() => {
-          setUpdatedMessge(null)
-        }, 5000)
-        setNewName("")
-        setNumber("")
+  } else {
+    noteServices.create(newPerson)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson));
+        setAddedMessage(`Added ${newPerson.name} to the server`);
+        setTimeout(() => setAddedMessage(null), 5000);
+        setNewName("");
+        setNumber("");
       })
-        .catch(error => console.log("fail")
-        )
-    } else {
-      noteServices.create(newPerson).then(response => {
-        setPersons(persons.concat(response))
-        setAddedMessage(`Added ${newPerson.name} to the server`)
-        setTimeout(() => {
-          setAddedMessage(null)
-        }, 5000)
-        setNewName("")
-        setNumber("")
-      })
-        .catch(error => console.log("fail"))
-      /*
-      axios.post(`http://localhost:3001/persons`, newPerson).then(response => console.log(response.data))
-      setPersons(persons.concat(newPerson))
-      setNewName("")
-      setNumber("")
-    */
-    }
-
+      .catch(error => {
+        setErrorMessage("Failed to add person");
+        setTimeout(() => setErrorMessage(null), 5000);
+      });
   }
+};
+
 
   const personToShow = persons.filter(person => person.name && person.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
@@ -117,12 +106,9 @@ const App = () => {
     // i want to delete a person from the persons data
     if (window.confirm(`Delete ${name}?`)) {
       noteServices.remove(id).then(response => {
-
-
-
-
         setPersons(persons.filter(person => person.id !== id))
-      }).catch(error => {
+      })
+      .catch(error => {
         setErrorMessage("the person was already removed from the server")
         setTimeout(() => {
           setErrorMessage(null)
