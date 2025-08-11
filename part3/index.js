@@ -48,20 +48,22 @@ app.get("/api/persons/:id", (request, response, next) => {
 
 /*
 const body = request.body
-if (!body.name || !body.number) {
-    return response.status(404).json({
-        error: "missing-content"
-    })
-}
+
 */
 
 app.post("/api/persons", (request, response, next) => {
     const body = request.body
 
+    if (!body.name || !body.number) {
+        return response.status(404).json({
+            error: "missing-content"
+        })
+    }
+
     Person.findOne({ name: body.name })
         .then(existingPerson => {
             if (existingPerson) {
-                return response.status(404).json({
+                return response.status(400).json({
                     error: "name must be unique"
                 })
             }
@@ -71,11 +73,11 @@ app.post("/api/persons", (request, response, next) => {
                 number: body.number,
             })
             return person.save()
-        })
-        .then(savedPerson => {
-            if (savedPerson) {
-                response.json(savedPerson)
-            }
+                .then(savedPerson => {
+                    if (savedPerson) {
+                        response.json(savedPerson)
+                    }
+                }).catch(error => next(error))
         })
         .catch(error => next(error))
 })
@@ -125,7 +127,7 @@ app.delete("/api/persons/:id", (request, response, next) => {
 
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
+    response.status(404).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEndpoint)
 
