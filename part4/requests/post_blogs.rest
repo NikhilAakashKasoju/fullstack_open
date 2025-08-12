@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Designing Destiny",
+    "author": "Kamlesh D Patel",
+    "url": "heartfulness.org",
+    "likes": 2000000
+}
