@@ -1,0 +1,9 @@
+PUT http://localhost:3003/api/blogs/689b23635b3dc9526e922c26
+Content-Type: application/json
+
+{
+    "title": "destroy",
+    "author": "nolan",
+    "url": "nolan.com",
+    "likes": 19090
+}
