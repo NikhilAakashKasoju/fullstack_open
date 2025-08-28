@@ -1,9 +1,11 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5pa2hpbCIsImlkIjoiNjhhZDU2ODRlMjU1ZWU5NzljNjA1ODI0IiwiaWF0IjoxNzU2Mjc5MTI1LCJleHAiOjE3NTYyODI3MjV9.pjvTQLQVKUcL1WjB4Q7R3_p7-3rZKwIeV-rbq_hNqsA
 
 {
-    "title": "Spiritual Anatomy",
-    "author": "Kamlesh D Patel",
-    "url": "hfnlife.com",
-    "likes": "23598273549"
+    "title": "the power of paradox",
+    "author": "Daaji",
+    "url": "amazon.com",
+    "likes": "28345734",
+    "userId": "68ad5684e255ee979c605824"
 }

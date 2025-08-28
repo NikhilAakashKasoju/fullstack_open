@@ -1,4 +1,50 @@
 const logger = require('./logger')
+const jwt = require("jsonwebtoken")
+const User = require('../models/user')
+
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization')
+
+  if (authorization && authorization.startsWith('Bearer ')) {
+    request.token = authorization.replace('Bearer ', '')
+  } else {
+    request.token = null
+  }
+  next()
+}
+
+const userExtractor = async (request, response, next) => {
+  // Check if token exists
+  if (!request.token) {
+    return response.status(401).json({ error: "token missing" })
+  }
+
+  // Verify the token
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" })
+  }
+
+  // Find the user from the database
+  const user = await User.findById(decodedToken.id)
+  if (!user) {
+    return response.status(401).json({ error: "user not found" })
+  }
+
+  // Attach user to request object
+  request.user = user
+  next()
+}
+
+const authorization = (request, response, next) => {
+  if (!request.token) {
+    return response.status(401).json({ error: "token missing" })
+  }
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  request.user = decodedToken
+  next()
+}
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
@@ -19,6 +65,12 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
+  } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
+    return response.status(400).json({ error: 'expected `username` to be unique' })
+  } else if (error.name === 'JsonWebTokenError') {
+    return response.status(401).json({ error: 'token invalid' })
+  } else if (error.name === 'TokenExpiredError') {
+    return response.status(401).json({ error: 'token expired' })
   }
 
   next(error)
@@ -27,5 +79,8 @@ const errorHandler = (error, request, response, next) => {
 module.exports = {
   requestLogger,
   unknownEndpoint,
-  errorHandler
+  errorHandler,
+  tokenExtractor,
+  authorization,
+  userExtractor
 }
