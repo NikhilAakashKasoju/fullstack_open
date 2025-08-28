@@ -149,9 +149,6 @@ const App = () => {
     setBlogUrl('')
   }
 
-  const handleBlogDelete = () => {
-    
-  }
 
   return (
     <div>

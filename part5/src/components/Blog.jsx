@@ -6,8 +6,7 @@ const Blog = ({ blog }) => (
       Author: {blog.author} <br />
       Url: {blog.url}
     </p>
-    <button onClick = {handleBlogDelete}>Delete</button>
-  </div>  
+  </div>
 )
 
 export default Blog
