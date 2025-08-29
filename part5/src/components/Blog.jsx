@@ -1,11 +1,13 @@
-const Blog = ({ blog }) => (
+import BlogTogglable from "./BlogTogglable"
+
+const Blog = ({ blog, handleLikes }) => (
 
   <div>
-    <p>
-      Title: {blog.title} <br />
-      Author: {blog.author} <br />
-      Url: {blog.url}
-    </p>
+      Title: {blog.title}  Author: {blog.author}
+      <BlogTogglable buttonLabel="View">
+        Url: {blog.url} <br />
+        likes: {blog.likes} <button onClick = {() => handleLikes(blog)}>Like</button>
+      </BlogTogglable>
   </div>
 )
 

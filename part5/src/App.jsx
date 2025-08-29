@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import LoginForm from './components/Login'
+import BlogForm from './components/BlogForm'
+import BlogList from './components/BlogList'
+import Togglable from './components/BlogFormTogglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -11,8 +14,11 @@ const App = () => {
   const [blogTitle, setBlogTitle] = useState('')
   const [blogAuthor, setBlogAuthor] = useState('')
   const [blogUrl, setBlogUrl] = useState('')
+  const [blogLikes, setBlogLikes] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+
+
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -28,76 +34,6 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-
-  const loginForm = () => {
-    return (
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>
-            username
-            <input type="text" value={username} onChange={({ target }) => setUsername(target.value)} />
-          </label>
-        </div>
-        <div>
-          <label>
-            password
-            <input type="password" value={password} onChange={({ target }) => setPassword(target.value)} />
-          </label>
-        </div>
-        <div>
-          <button type="submit">Submit</button>
-        </div>
-      </form>
-    )
-  }
-
-  const blogForm = () => {
-    return (
-      <div>
-        <div>
-          <p>{user.username} logged in </p>
-          <button onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-        <br />
-        <div>
-          <form onSubmit={handleBlog}>
-            <div>
-              <label>
-                Title:
-                <input type="text" value={blogTitle} onChange={({ target }) => setBlogTitle(target.value)} />
-              </label>
-            </div>
-
-            <div>
-              <label>
-                Author:
-                <input type="text" value={blogAuthor} onChange={({ target }) => setBlogAuthor(target.value)} />
-              </label>
-            </div>
-
-            <div>
-              <label>
-                Url:
-                <input type="text" value={blogUrl} onChange={({ target }) => setBlogUrl(target.value)} />
-              </label>
-            </div>
-            <br />
-            <button type="submit">Save</button>
-          </form>
-        </div>
-        <div>
-          <h2>blogs</h2>
-          {blogs.filter(blog => blog.user && blog.user.username === user.username)
-            .map(blog =>
-              <Blog key={blog.id} blog={blog} />
-            )}
-        </div>
-      </div>
-
-    )
-  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -134,6 +70,7 @@ const App = () => {
       title: blogTitle,
       author: blogAuthor,
       url: blogUrl,
+      likes: blogLikes,
     }
 
     const saved = await blogService.create(newBlog)
@@ -149,13 +86,62 @@ const App = () => {
     setBlogUrl('')
   }
 
+  
+const handleLikes = async (blog) => {
+    console.log("liked") // need to add put request to the backend
+    const updatedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+      user: blog.user.id || blog.user
+    }
+
+    const returnedBlog = await blogService.update(blog.id, updatedBlog)
+    setBlogs(blogs.map(b => b.id !== blog.id ? b : {...returnedBlog, user: blog.user}))
+}
 
   return (
     <div>
       {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
-      {successMessage && <div style = {{color: 'green'}}>{successMessage}</div>}
-      {!user && loginForm()}
-      {user && blogForm()}
+
+      {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
+
+      {!user && <LoginForm
+        username={username}
+        password={password}
+        handleLogin={handleLogin}
+        setUsername={setUsername}
+        setPassword={setPassword}
+      />}
+
+      {user &&
+        <div>
+          <p>{user.username} logged in &nbsp;
+            <button onClick={handleLogout}>
+              Logout
+            </button>
+          </p>
+          <Togglable buttonLabel="Create">
+            <BlogForm
+              user={user}
+              blogs={blogs}
+              blogTitle={blogTitle}
+              setBlogTitle={setBlogTitle}
+              blogAuthor={blogAuthor}
+              setBlogAuthor={setBlogAuthor}
+              blogUrl={blogUrl}
+              setBlogUrl={setBlogUrl}
+              blogLikes={blogLikes}
+              setBlogLikes={setBlogLikes}
+              handleBlog={handleBlog}
+              handleLogout={handleLogout}
+            />
+          </Togglable>
+          <BlogList blogs={blogs} user={user} handleLikes={handleLikes}/>
+
+        </div>
+      }
+
+
     </div>
   )
 
