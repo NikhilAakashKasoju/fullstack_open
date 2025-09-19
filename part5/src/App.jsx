@@ -14,11 +14,8 @@ const App = () => {
   const [blogTitle, setBlogTitle] = useState('')
   const [blogAuthor, setBlogAuthor] = useState('')
   const [blogUrl, setBlogUrl] = useState('')
-  const [blogLikes, setBlogLikes] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-
-
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -38,7 +35,7 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault()
     setErrorMessage(null)
-    console.log('logging in with', username, password)
+    //console.log('logging in with', username, password)
 
     try {
       const user = await loginService.login({ username, password })
@@ -50,7 +47,7 @@ const App = () => {
       setErrorMessage(null)
     } catch (error) {
       console.log('login failed', error)
-      setErrorMessage("wrong username or password")
+      setErrorMessage('wrong username or password')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -70,7 +67,6 @@ const App = () => {
       title: blogTitle,
       author: blogAuthor,
       url: blogUrl,
-      likes: blogLikes,
     }
 
     const saved = await blogService.create(newBlog)
@@ -79,16 +75,15 @@ const App = () => {
       setSuccessMessage(null)
     }, 5000)
     setBlogs(blogs.concat(saved))
-    console.log("blog saved")
+    console.log('blog saved')
 
     setBlogTitle('')
     setBlogAuthor('')
     setBlogUrl('')
   }
 
-  
-const handleLikes = async (blog) => {
-    console.log("liked") // need to add put request to the backend
+  const handleLikes = async (blog) => {
+    console.log('liked')
     const updatedBlog = {
       ...blog,
       likes: blog.likes + 1,
@@ -96,8 +91,19 @@ const handleLikes = async (blog) => {
     }
 
     const returnedBlog = await blogService.update(blog.id, updatedBlog)
-    setBlogs(blogs.map(b => b.id !== blog.id ? b : {...returnedBlog, user: blog.user}))
-}
+    setBlogs(blogs.map(b => b.id !== blog.id ? b : { ...returnedBlog, user: blog.user }))
+  }
+
+  const handleDelete = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
+      try {
+        await blogService.remove(blog.id)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
 
   return (
     <div>
@@ -130,20 +136,14 @@ const handleLikes = async (blog) => {
               setBlogAuthor={setBlogAuthor}
               blogUrl={blogUrl}
               setBlogUrl={setBlogUrl}
-              blogLikes={blogLikes}
-              setBlogLikes={setBlogLikes}
               handleBlog={handleBlog}
               handleLogout={handleLogout}
             />
           </Togglable>
-          <BlogList blogs={blogs} user={user} handleLikes={handleLikes}/>
-
+          <BlogList blogs={blogs} user={user} handleLikes={handleLikes} handleDelete = {handleDelete}/>
         </div>
       }
-
-
     </div>
   )
-
 }
 export default App

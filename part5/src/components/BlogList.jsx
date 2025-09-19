@@ -1,16 +1,17 @@
 
-import Blog from "./Blog";
+import Blog from './Blog'
 
-const BlogList = ({blogs, user, handleLikes}) => {
-    return (
-        <div>
-            <h2>blogs</h2>
-            {blogs.filter(blog => blog.user && blog.user.username === user.username)
-                .map(blog =>
-                    <Blog key={blog.id} blog={blog} handleLikes={handleLikes} />
-                )}
-        </div>
-    )
+const BlogList = ({ blogs, handleLikes, handleDelete, user }) => {
+
+  const sortedBlogs = [...blogs].sort((a,b) => b.likes - a.likes)
+  return (
+    <div>
+      <h2>blogs</h2>
+      {
+        sortedBlogs.map(blog => <Blog key = {blog.id} blog = {blog} user = {user} handleLikes = {handleLikes}  handleDelete={handleDelete}/>)
+      }
+    </div>
+  )
 }
 
 
