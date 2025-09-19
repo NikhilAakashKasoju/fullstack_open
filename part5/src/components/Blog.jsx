@@ -8,7 +8,7 @@ const Blog = ({ blog, handleLikes, user, handleDelete }) => {
 
   return (
     <div className='blog' data-testid = 'blog-details'>
-      Title: {blog.title}  Author: {blog.author}
+      Title: {blog.title} Author: {blog.author}
       <BlogTogglable buttonLabel="View">
         Url: {blog.url} <br />
         likes: {blog.likes} <button onClick={() => handleLikes(blog)}>Like</button>

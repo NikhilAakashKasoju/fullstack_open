@@ -12,6 +12,8 @@ test('renders content', () => {
 
   expect(screen.getByText(/Title:\s*component testing is done in react using/i)).toBeInTheDocument()
   expect(screen.getByText(/Author:\s*react/i)).toBeInTheDocument()
+  // expect(screen.getByText('Title: component testing is done in react using')).toBeInTheDocument()
+  // expect(screen.getByText('Author: react')).toBeInTheDocument()
 })
 
 test('blog URL and likes are shown when view button is clicked', async () => {
@@ -89,11 +91,11 @@ test('like button event handler is called twice when clicked twice', async () =>
   )
 
   // First, click the view button to show the like button
-  const viewButton = screen.getByText('View')
+  const viewButton = screen.getByRole('button', {name: 'View'})
   await userEvent.click(viewButton)
 
   // Find the like button
-  const likeButton = screen.getByText('Like')
+  const likeButton = screen.getByRole('button', {name: 'Like'})
   
   // Click the like button twice
   await userEvent.click(likeButton)
