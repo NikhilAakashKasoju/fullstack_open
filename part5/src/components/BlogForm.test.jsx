@@ -6,18 +6,18 @@ import BlogForm from './BlogForm'
 test('form calls the event handler with correct details when submitted', async () => {
   const user = userEvent.setup()
   const handleBlogMock = vi.fn()
-  
+
   // Create mock state setters that update values we can track
   let titleValue = ''
   let authorValue = ''
   let urlValue = ''
-  
+
   const setBlogTitleMock = vi.fn(value => titleValue = value)
   const setBlogAuthorMock = vi.fn(value => authorValue = value)
   const setBlogUrlMock = vi.fn(value => urlValue = value)
 
   render(
-    <BlogForm 
+    <BlogForm
       blogTitle={titleValue}
       setBlogTitle={setBlogTitleMock}
       blogAuthor={authorValue}
@@ -41,7 +41,7 @@ test('form calls the event handler with correct details when submitted', async (
 
   // Check that the form submission handler was called
   expect(handleBlogMock).toHaveBeenCalledTimes(1)
-  
+
   // The handler should receive an event object
   const event = handleBlogMock.mock.calls[0][0]
   expect(event).toBeInstanceOf(Object)

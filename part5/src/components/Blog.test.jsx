@@ -33,10 +33,10 @@ test('blog URL and likes are shown when view button is clicked', async () => {
   const mockHandleDelete = vi.fn()
 
   render(
-    <Blog 
-      blog={blog} 
-      handleLikes={mockHandleLikes} 
-      handleDelete={mockHandleDelete} 
+    <Blog
+      blog={blog}
+      handleLikes={mockHandleLikes}
+      handleDelete={mockHandleDelete}
       user={{ username: 'testuser' }}
     />
   )
@@ -45,7 +45,7 @@ test('blog URL and likes are shown when view button is clicked', async () => {
   // We can check by looking for elements that are not visible
   const urlElement = screen.queryByText('https://testurl.com')
   const likesElement = screen.queryByText('42')
-  
+
   // They might exist in DOM but be hidden, so we need to check visibility
   if (urlElement) {
     expect(urlElement).not.toBeVisible()
@@ -82,28 +82,28 @@ test('like button event handler is called twice when clicked twice', async () =>
   const mockHandleDelete = vi.fn()
 
   render(
-    <Blog 
-      blog={blog} 
-      handleLikes={mockHandleLikes} 
-      handleDelete={mockHandleDelete} 
+    <Blog
+      blog={blog}
+      handleLikes={mockHandleLikes}
+      handleDelete={mockHandleDelete}
       user={{ username: 'testuser' }}
     />
   )
 
   // First, click the view button to show the like button
-  const viewButton = screen.getByRole('button', {name: 'View'})
+  const viewButton = screen.getByRole('button', { name: 'View' })
   await userEvent.click(viewButton)
 
   // Find the like button
-  const likeButton = screen.getByRole('button', {name: 'Like'})
-  
+  const likeButton = screen.getByRole('button', { name: 'Like' })
+
   // Click the like button twice
   await userEvent.click(likeButton)
   await userEvent.click(likeButton)
 
   // Verify that the mock function was called twice
   expect(mockHandleLikes).toHaveBeenCalledTimes(2)
-  
+
   // Verify that it was called with the correct argument (the blog object)
   expect(mockHandleLikes).toHaveBeenCalledWith(blog)
   expect(mockHandleLikes).toHaveBeenNthCalledWith(1, blog)
